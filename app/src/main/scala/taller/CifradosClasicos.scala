@@ -122,17 +122,43 @@ class CifradosClasicos {
     cesarCola(m, -k)
   }
 
-  // Punto 5 -------------------------------------------------------------------
+// Punto 5 -------------------------------------------------------------------
 
   /**
    * Cuántos mensajes de longitud n se forman con a letras sin dos iguales
    * seguidas.
    */
-  def combinaciones(n: Int, a: Int): BigInt = ???
+  def combinaciones(n: Int, a: Int): BigInt = {
+    if (n <= 0) BigInt(1)
+    else if(n ==1) BigInt(a)
+    else BigInt(a)* BigInt(a-1).pow(n-1)
+  }
 
   /**
    * Vigenère: cada letra se corre según la letra de la clave que le toca. Lo
    * que no es letra minúscula se copia y no consume clave.
    */
-  def vigenere(m: Mensaje, clave: Clave): Mensaje = ???
+  def vigenere(m: Mensaje, clave: Clave): Mensaje = {
+    if (clave.isEmpty) m
+    else {
+      @tailrec
+      def vigenereHelper(restanteMsg: String, restanteClave: String, acc: String):String = {
+        if (restanteMsg.isEmpty) acc
+        else{
+          val c = restanteMsg.head
+          if (esMinuscula(c)){
+            // Aqui dezplazamos la letra actual de la clave
+            val k =restanteClave.head - primera
+            val cCifrado = (primera + ((c - primera + k) % letras + letras ) % letras).toChar
+            // Aqui rotamos la clave para la minuscula
+            val siguienteClave =  restanteClave.tail + restanteClave.head
+            vigenereHelper(restanteMsg.tail, siguienteClave, acc + cCifrado)
+          } else {
+            vigenereHelper(restanteMsg.tail, restanteClave, acc + c)
+          }
+        }
+      }
+      vigenereHelper(m, clave, "")
+    }
+  }
 }

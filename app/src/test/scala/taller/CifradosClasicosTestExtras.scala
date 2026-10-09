@@ -191,5 +191,29 @@ class CifradosClasicosTestExtras extends  AnyFunSuite {
     assert(desplazamientoProbable(cifrado) == 8)
     assert(romperCesar(cifrado) == original)
   }
+  // Punto 5: Casos de prueba para el punto 5
+  test("combinaciones: caso base n=0 devuelve 1") {
+    val cifrado = new CifradosClasicos()
+    assert(cifrado.combinaciones(0, 26) == BigInt(1))
+  }
+
+  test("combinaciones: alfabeto de 2 letras y longitud 2") {
+    val cifrado = new CifradosClasicos()
+    assert(cifrado.combinaciones(2, 2) == BigInt(2))
+  }
+  test("vigenere: cifrado basico con clave corta") {
+    val cifrado = new CifradosClasicos()
+    assert(cifrado.vigenere("ataque", "sol") == "shliip")
+  }
+  test("vigenere: los espacios y signos no consumen letras de la clave") {
+    val cifrado = new CifradosClasicos()
+    // 'l'+'a'='l', 'a'+'b'='b', ' ' sin cambio, 'c'+'a'='c', 'a'+'b'='b', 's'+'a'='s', 'a'+'b'='b'
+    assert(cifrado.vigenere("la casa", "ab") == "lb cbsb")
+  }
+
+  test("vigenere: clave de una sola letra equivale a cifrado Cesar") {
+    val cifrado = new CifradosClasicos()
+    assert(cifrado.vigenere("scala", "c") == cifrado.cesar("scala", 2))
+  }
 }
 

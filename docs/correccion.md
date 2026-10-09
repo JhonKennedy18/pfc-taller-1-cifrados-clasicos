@@ -227,7 +227,7 @@ cesarCola("casa", 3, "")
 Por ejemplo, en la tercera fila: $acc = \texttt{"fd"}$ y
 $f(\texttt{"sa"}, 3) = \texttt{"vd"}$, y $\texttt{"fd"} \cdot \texttt{"vd"} = \texttt{"fdvd"}$.
 
-## Puntos 3 y 4: Conteo de Frecuencias y Romper César
+### Puntos 3 y 4: Conteo de Frecuencias y Romper César
 
 ### Convenciones
 
@@ -260,7 +260,7 @@ $$\text{Inv}(L, A) \equiv \forall c \in A, \quad A(c) + \text{frec}(c, L) = \tex
 * Si $esMinuscula(x)$ es falso: el nuevo estado es $(L', A)$. Como $x \notin A$, $\text{frec}(c, L') = \text{frec}(c, x \cdot L')$ para todo $c \in A$, conservando la igualdad.
 * Si $esMinuscula(x)$ es verdadero: el nuevo estado es $(L', A')$, donde $A' = A + (x \to A(x) + 1)$. Para la letra $x$, la lista pierde una aparición ($\text{frec}(x, L') = \text{frec}(x, x \cdot L') - 1$), pero el mapa suma 1 ($A'(x) = A(x) + 1$). La suma se mantiene constante. Para cualquier otra letra $c \neq x$, los valores no varían.
   Por lo tanto, $\text{Inv}(\text{transformar}(s_i))$ se cumple.
-**3. Estado final:** En $s_f = (\text{Nil}, A)$, como la lista está vacía, $\text{frec}(c, \text{Nil}) = 0$. La invariante se reduce a:
+  **3. Estado final:** En $s_f = (\text{Nil}, A)$, como la lista está vacía, $\text{frec}(c, \text{Nil}) = 0$. La invariante se reduce a:
 
 $$A(c) + 0 = \text{frec}(c, m) \implies A(c) = \text{frec}(c, m)$$
 
@@ -279,3 +279,65 @@ desplazamientoProbable(m) =
 0 & \text{si } frecuencias(m) = \text{Nil} \\
 (pos(c_{max}) - pos(\texttt{'e'}) + 26) \bmod 26 & \text{si } frecuencias(m) \neq \text{Nil}
 \end{cases}
+```
+
+## Punto 5: Demostración matemática del conteo de mensajes $C(n, a)$
+
+Vamos a demostrar la validez de la función de recurrencia con la que se calcula
+la cantidad de mensajes distintos de longitud $n$ sobre un alfabeto de $a$
+letras, sin que contengan dos caracteres idénticos de manera consecutiva:
+
+```math
+C(n, a) =
+\begin{cases}
+1 & \text{si } n = 0 \\
+a & \text{si } n = 1 \\
+(a - 1) \cdot C(n - 1, a) & \text{si } n > 1
+\end{cases}
+```
+
+### Demostración por inducción matemática
+
+#### 1. Casos base
+
+* **Para $n = 0$:** solo existe un mensaje de longitud $0$, que es la cadena
+  vacía $\varepsilon$. Por lo tanto, $C(0, a) = 1$.
+* **Para $n = 1$:** en un mensaje de un solo símbolo se puede elegir cualquiera
+  de las $a$ letras del alfabeto. Por lo tanto, $C(1, a) = a$.
+
+#### 2. Hipótesis inductiva
+
+Asumimos que para una longitud $k \geq 1$, la cantidad de mensajes válidos sin
+letras iguales seguidas está dada por $C(k, a)$.
+
+#### 3. Paso inductivo
+
+Queremos determinar el número de mensajes válidos de longitud $k + 1$.
+
+Cualquier mensaje válido de longitud $k + 1$ se puede formar tomando un mensaje
+válido de longitud $k$ y anexándole un nuevo carácter al final.
+
+Dado que la regla exige que no existan dos letras iguales seguidas, el último
+carácter (en la posición $k + 1$) **no puede ser igual** al carácter de la
+posición $k$. Como el alfabeto tiene $a$ letras en total y hay $1$ letra
+prohibida (la última letra del mensaje de longitud $k$), quedan exactamente
+$(a - 1)$ opciones válidas para la nueva letra.
+
+Por el **principio multiplicativo del conteo**:
+
+```math
+C(k + 1, a) = (a - 1) \cdot C(k, a)
+```
+
+Esto confirma la relación de recurrencia para todo $n > 1$.
+
+#### 4. Formulación en forma cerrada
+
+Resolviendo la relación de recurrencia para $n \geq 1$:
+
+```math
+C(n, a) = a \cdot (a - 1)^{n - 1}
+```
+
+Por ejemplo, para $n = 3$ y $a = 26$:
+$C(3, 26) = 26 \cdot 25^{2} = 16250$, que coincide con el ejemplo del enunciado.

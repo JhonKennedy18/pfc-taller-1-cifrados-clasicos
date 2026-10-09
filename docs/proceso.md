@@ -78,20 +78,20 @@ hacia abajo, hace la suma que tenía pendiente y se libera.
 
 ```mermaid
 sequenceDiagram
-    participant C0 as cesar(casa, 3)
-    participant C1 as cesar(asa, 3)
-    participant C2 as cesar(sa, 3)
-    participant C3 as cesar(a, 3)
-    participant C4 as cesar(vacio, 3)
+  participant C0 as cesar(casa, 3)
+  participant C1 as cesar(asa, 3)
+  participant C2 as cesar(sa, 3)
+  participant C3 as cesar(a, 3)
+  participant C4 as cesar(vacio, 3)
 
-    C0->>C1: llamada, queda pendiente f + ...
-    C1->>C2: llamada, queda pendiente d + ...
-    C2->>C3: llamada, queda pendiente v + ...
-    C3->>C4: llamada, queda pendiente d + ...
-    C4-->>C3: devuelve vacio
-    C3-->>C2: devuelve d
-    C2-->>C1: devuelve vd
-    C1-->>C0: devuelve dvd
+  C0->>C1: llamada, queda pendiente f + ...
+  C1->>C2: llamada, queda pendiente d + ...
+  C2->>C3: llamada, queda pendiente v + ...
+  C3->>C4: llamada, queda pendiente d + ...
+  C4-->>C3: devuelve vacio
+  C3-->>C2: devuelve d
+  C2-->>C1: devuelve vd
+  C1-->>C0: devuelve dvd
 ```
 
 ## Punto 2: `cesarCola` (recursión de cola)
@@ -131,17 +131,17 @@ misma capa se reutiliza con nuevos valores de `m` y `acc`.
 
 ```mermaid
 sequenceDiagram
-    participant Main as cesarCola(casa, 3, vacio)
-    participant L1 as cesarCola(asa, 3, f)
-    participant L2 as cesarCola(sa, 3, fd)
-    participant L3 as cesarCola(a, 3, fdv)
-    participant L4 as cesarCola(vacio, 3, fdvd)
+  participant Main as cesarCola(casa, 3, vacio)
+  participant L1 as cesarCola(asa, 3, f)
+  participant L2 as cesarCola(sa, 3, fd)
+  participant L3 as cesarCola(a, 3, fdv)
+  participant L4 as cesarCola(vacio, 3, fdvd)
 
-    Main->>L1: tail call, acc = f
-    L1->>L2: tail call, acc = fd
-    L2->>L3: tail call, acc = fdv
-    L3->>L4: tail call, acc = fdvd
-    L4-->>Main: devuelve fdvd
+  Main->>L1: tail call, acc = f
+  L1->>L2: tail call, acc = fd
+  L2->>L3: tail call, acc = fdv
+  L3->>L4: tail call, acc = fdvd
+  L4-->>Main: devuelve fdvd
 ```
 
 A diferencia del diagrama del Punto 1, aquí no hay flechas de vuelta con
@@ -195,17 +195,17 @@ La función convierte el mensaje en una lista de caracteres y la recorre con un 
 
 ```mermaid
 sequenceDiagram
-    participant Main as aux(casa, vacio)
-    participant L1 as aux(asa, c:1)
-    participant L2 as aux(sa, c:1, a:1)
-    participant L3 as aux(a, c:1, a:1, s:1)
-    participant L4 as aux(vacio, c:1, a:2, s:1)
+  participant Main as aux(casa, vacio)
+  participant L1 as aux(asa, c:1)
+  participant L2 as aux(sa, c:1, a:1)
+  participant L3 as aux(a, c:1, a:1, s:1)
+  participant L4 as aux(vacio, c:1, a:2, s:1)
 
-    Main->>L1: tail call, acc = c:1
-    L1->>L2: tail call, acc = c:1, a:1
-    L2->>L3: tail call, acc = c:1, a:1, s:1
-    L3->>L4: tail call, acc = c:1, a:2, s:1
-    L4-->>Main: devuelve Map(c -> 1, a -> 2, s -> 1)
+  Main->>L1: tail call, acc = c:1
+  L1->>L2: tail call, acc = c:1, a:1
+  L2->>L3: tail call, acc = c:1, a:1, s:1
+  L3->>L4: tail call, acc = c:1, a:2, s:1
+  L4-->>Main: devuelve Map(c -> 1, a -> 2, s -> 1)
 ```
 
 Al finalizar la recolección de los datos, el resultado se convierte a una lista y se ordena. El criterio de ordenamiento prioriza las frecuencias mayores (`n1 > n2`). En caso de empate, resuelve por orden alfabético (`c1 < c2`).
@@ -273,3 +273,49 @@ sequenceDiagram
     DP-->>RC: calcula y devuelve k = 3
     RC->>CC: llama con k invertido (-3)
     CC-->>RC: devuelve "este"
+```
+
+## Punto 5: Cifrado Vigenère
+
+### 1. Estado de la Pila de Llamados Paso a Paso
+
+La función `vigenere` utiliza una función auxiliar recursiva de cola llamada `vigenereHelper` para procesar el mensaje sin dejar operaciones pendientes.
+
+Para la ejecución de `vigenere("casa", "sol")`, con los desplazamientos de la clave `sol` ($s = 18$, $o = 14$, $l = 11$):
+
+```text
+vigenereHelper("casa", "sol", "")
+└── vigenereHelper("asa", "ols", "s")       // 'c' + 18 mod 26 -> 's'
+    └── vigenereHelper("sa", "lso", "sh")   // 'a' + 14 mod 26 -> 'h'
+        └── vigenereHelper("a", "sol", "shl") // 's' + 11 mod 26 -> 'l'
+            └── vigenereHelper("", "ols", "shls") // 'a' + 18 mod 26 -> 's'
+                └── "shls" [Caso base alcanzado]
+```
+
+### 2. Diagrama de Secuencia de la Pila (Mermaid)
+
+```mermaid
+sequenceDiagram
+  autonumber
+  actor Usuario
+  participant V as vigenere("casa", "sol")
+  participant H as vigenereHelper
+
+  Usuario->>V: Iniciar cifrado
+  V->>H: vigenereHelper("casa", "sol", "")
+  Note over H: 'c' + 's' -> 's' | Clave rota a "ols"
+  H->>H: vigenereHelper("asa", "ols", "s")
+  Note over H: 'a' + 'o' -> 'h' | Clave rota a "lso"
+  H->>H: vigenereHelper("sa", "lso", "sh")
+  Note over H: 's' + 'l' -> 'l' | Clave rota a "sol"
+  H->>H: vigenereHelper("a", "sol", "shl")
+  Note over H: 'a' + 's' -> 's' | Clave rota a "ols"
+  H->>H: vigenereHelper("", "ols", "shls")
+  Note over H: Caso base alcanzado (mensaje vacío)
+  H-->>Usuario: Retorna "shls"
+```
+
+### 3. Explicación de la Complejidad Espacial y Pila
+
+- **Espacio Constante $O(1)$:** Al estar anotada con `@tailrec`, la llamada recursiva a `vigenereHelper` es el último paso de la función. El compilador de Scala reutiliza un único marco en la pila de llamadas (*stack frame*).
+- **Manejo de Caracteres Especiales:** Los espacios, números o signos no consumen letras de la clave `sol` ni desplazan la secuencia de la clave; pasan directo al acumulador.
